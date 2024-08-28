@@ -1,0 +1,239 @@
+{
+	"info": {
+		"_postman_id": "39814e7f-529b-4abc-ae0d-adb2c47c5d1a",
+		"name": "Sample go rest API chaining(session-6)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24174318",
+		"_collection_link": "https://interstellar-rocket-842314.postman.co/workspace/QA-Practice~1d883ce9-6e77-4b6e-a6fb-5650b478a50b/collection/24174318-39814e7f-529b-4abc-ae0d-adb2c47c5d1a?action=share&source=collection_link&creator=24174318"
+	},
+	"item": [
+		{
+			"name": "Create a new user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//syntax to generate random email and username in oostman\r",
+							"var random = Math.random().toString(36).substring(2);\r",
+							"\r",
+							"var useremail=\"jim\"+random+\"@gmail.com\"; \r",
+							"var username=\"jim\"+random;\r",
+							"\r",
+							"pm.environment.set(\"email_env\" ,useremail);\r",
+							"pm.environment.set(\"name_env\" ,username);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"var jsonData=JSON.parse(responseBody);//this will return entire response body into a variable i.e. jsondata\r",
+							"//syntax to capture id from response body which id will be used in other requests\r",
+							"pm.environment.set(\"userid_env\",jsonData.id);//jsonData.id is json path from the given response"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{name_env}}\",\r\n    \"gender\":\"female\",\r\n    \"email\": \"{{email_env}}\",\r\n    \"status\":\"Active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://gorest.co.in/public/v2/users",
+					"protocol": "https",
+					"host": [
+						"gorest",
+						"co",
+						"in"
+					],
+					"path": [
+						"public",
+						"v2",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Details",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//to compare response data of post request with this get request\r",
+							"//so now validating json fields in this response with post request/response\r",
+							"\r",
+							"pm.test(\"values of json fields\", () => {//validating json fields in the response\r",
+							"var jsonData=pm.response.json();\r",
+							"\r",
+							"//now capturing the data from this response and comparing them with environment variables of post request because it must be same \r",
+							"pm.expect(jsonData.id).to.eql(pm.environment.get(\"userid_env\"));\r",
+							"pm.expect(jsonData.email).to.eql(pm.environment.get(\"email_env\"));\r",
+							"pm.expect(jsonData.name).to.eql(pm.environment.get(\"name_env\"));\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://gorest.co.in/public/v2/users/{{userid_env}}",
+					"protocol": "https",
+					"host": [
+						"gorest",
+						"co",
+						"in"
+					],
+					"path": [
+						"public",
+						"v2",
+						"users",
+						"{{userid_env}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user details",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//syntax to generate random email and username\r",
+							"var random=Math.random().toString(36).substring(2);\r",
+							"\r",
+							"var useremail=\"jim\"+random+\"@gmail.com\";\r",
+							"var username=\"jim\"+random;\r",
+							"\r",
+							"pm.environment.set(\"email_env\" ,useremail);\r",
+							"pm.environment.set(\"name_env\" ,username);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{name_env}}\",\r\n    \"email\":\"{{email_env}}\",\r\n    \"status\":\"InActive\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://gorest.co.in/public/v2/users/{{userid_env}}",
+					"protocol": "https",
+					"host": [
+						"gorest",
+						"co",
+						"in"
+					],
+					"path": [
+						"public",
+						"v2",
+						"users",
+						"{{userid_env}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//synatx to unset environment variable because after executing request we dont need these variables.also it will occupy certain amount of space in the memory and at the same time our execution can be slow .\r",
+							"\r",
+							"pm.environment.unset(\"email_env\");\r",
+							"pm.environment.unset(\"name_env\");\r",
+							"pm.environment.unset(\"userid_env\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://gorest.co.in/public/v2/users/{{userid_env}}",
+					"protocol": "https",
+					"host": [
+						"gorest",
+						"co",
+						"in"
+					],
+					"path": [
+						"public",
+						"v2",
+						"users",
+						"{{userid_env}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "1deb538f521a4ad269c16ae0cbc04448259da714ffefa4674345de536ebc1c10",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
